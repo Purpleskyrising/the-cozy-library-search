@@ -211,7 +211,7 @@
   <div id="selectedEditionDetails"></div>
   
 <button id="addToLibraryButton" type="button" disabled>
-  Add to My Library 📚
+  Add to My Library
 </button>
 
 </section>
@@ -220,6 +220,8 @@
   const searchInput = document.getElementById("bookSearch");
   const searchButton = document.getElementById("searchButton");
   const searchResults = document.getElementById("searchResults");
+  const addToLibraryButton = document.getElementById("addToLibraryButton");
+  let selectedBook = null;
 
   async function searchBooks() {
     const query = searchInput.value.trim();
@@ -266,7 +268,7 @@
         
         card.addEventListener("click", () => {
           if (workKey) {
-            showEditions(workKey, book.title);
+            showEditions(workKey, book.title, book.author_name?.[0] || "Unknown Author");
           }
         });
 
@@ -305,7 +307,7 @@
     if (event.key === "Enter") searchBooks();
   });
   
-async function showEditions(workKey, bookTitle) {
+async function showEditions(workKey, bookTitle, bookAuthor) {
   searchResults.textContent = "Finding editions of " + bookTitle + "...";
 
   try {
@@ -354,6 +356,14 @@ selectButton.textContent = "Select This Edition";
 selectButton.className = "select-edition";
 
 selectButton.addEventListener("click", () => {
+selectedBook = {
+  editionId: edition.key.split("/").pop(),
+  title: edition.title || bookTitle,
+  author: bookAuthor,
+  isbn: edition.isbn_13?.[0] || edition.isbn_10?.[0] || "",
+  pages: edition.number_of_pages || null,
+  readingStatus: "Want to Read"
+};
   
 const preview = document.getElementById("selectedEdition");
 const details = document.getElementById("selectedEditionDetails");
@@ -379,6 +389,7 @@ selectedInfo.textContent = [
 details.append(selectedCover, selectedTitle, selectedInfo);
 
 preview.hidden = false;
+addToLibraryButton.disabled = false;
 preview.scrollIntoView({ behavior: "smooth", block: "start" });
 
 });
@@ -391,7 +402,39 @@ preview.scrollIntoView({ behavior: "smooth", block: "start" });
     console.error(error);
   }
 }
+addToLibraryButton.addEventListener("click", async () => {
+  if (!selectedBook) return;
 
+  const importPassword = prompt("Enter your Cozy Library import password:");
+
+if (!importPassword) return;
+  try{
+  const response = await fetch(
+  "https://the-cozy-library-api.lindsey-cooley87.workers.dev/",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Import-Password": importPassword
+    },
+    body: JSON.stringify({
+      action: "importEdition",
+      ...selectedBook
+    })
+  }
+);
+  if (!response.ok) {
+  alert("Something went wrong with the import. Please try again.");
+  return;
+}
+
+alert("Your book import request was sent!");
+
+} catch (error) {
+  console.error("Import error:", error);
+  alert("Could not connect to The Cozy Library. Please try again.");
+}
+});
 </script>
 
 </body>
