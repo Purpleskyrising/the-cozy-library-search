@@ -132,6 +132,37 @@
   outline-offset: 3px;
 }
 
+#selectedEdition {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 28px;
+  background: var(--forest);
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  text-align: center;
+}
+
+#selectedEdition[hidden] {
+  display: none;
+}
+
+#selectedEdition h2 {
+  color: var(--gold);
+  font-size: 26px;
+}
+
+#selectedEditionDetails img {
+  width: 160px;
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 16px auto;
+}
+
+#selectedEditionDetails p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
 </style>
 
 </head>
@@ -152,6 +183,11 @@
 </div>
 
 <div id="searchResults" aria-live="polite"></div>
+
+<section id="selectedEdition" hidden>
+  <h2>🕯️ Your Selected Edition</h2>
+  <div id="selectedEditionDetails"></div>
+</section>
 
 <script>
   const searchInput = document.getElementById("bookSearch");
@@ -291,12 +327,33 @@ selectButton.textContent = "Select This Edition";
 selectButton.className = "select-edition";
 
 selectButton.addEventListener("click", () => {
-  alert(
-    "You selected: " +
-    (edition.title || bookTitle) +
-    "\nEdition ID: " + edition.key
-  );
-});
+  
+const preview = document.getElementById("selectedEdition");
+const details = document.getElementById("selectedEditionDetails");
+
+details.replaceChildren();
+
+const selectedCover = document.createElement("img");
+selectedCover.src = cover.src;
+selectedCover.alt = cover.alt;
+
+const selectedTitle = document.createElement("h3");
+selectedTitle.textContent = edition.title || bookTitle;
+
+const selectedInfo = document.createElement("p");
+selectedInfo.textContent = [
+  edition.publish_date,
+  edition.number_of_pages
+    ? `${edition.number_of_pages} pages`
+    : null,
+  edition.isbn_13?.[0] || edition.isbn_10?.[0]
+].filter(Boolean).join(" • ");
+
+details.append(selectedCover, selectedTitle, selectedInfo);
+
+preview.hidden = false;
+preview.scrollIntoView({ behavior: "smooth", block: "start" });
+
 
      card.append(cover, title, details, selectButton);
       searchResults.appendChild(card);
