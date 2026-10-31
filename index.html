@@ -72,6 +72,43 @@
   background: #dfc18b;
 }
 
+#searchResults {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+  margin: 40px auto;
+  text-align: left;
+}
+
+.book-card {
+  background: var(--forest);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+
+.book-card img {
+  width: 100%;
+  max-width: 150px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+.book-card h3 {
+  color: var(--parchment);
+  font-size: 18px;
+  margin: 14px 0 8px;
+}
+
+.book-card p {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 6px 0;
+}
+
 </style>
 
 </head>
@@ -90,6 +127,88 @@
     Search Books
   </button>
 </div>
+
+<div id="searchResults" aria-live="polite"></div>
+
+<script>
+  const searchInput = document.getElementById("bookSearch");
+  const searchButton = document.getElementById("searchButton");
+  const searchResults = document.getElementById("searchResults");
+
+  async function searchBooks() {
+    const query = searchInput.value.trim();
+
+    if (!query) {
+      searchResults.textContent = "Please enter a title, author, or ISBN.";
+      return;
+    }
+
+    searchResults.textContent = "Searching the library...";
+    searchButton.disabled = true;
+
+    try {
+      const isISBN = /^(?:\d{10}|\d{13})$/.test(
+        query.replace(/[-\s]/g, "")
+      );
+
+      const cleanISBN = query.replace(/[-\s]/g, "");
+
+      const url = isISBN
+        ? `https://openlibrary.org/search.json?isbn=${encodeURIComponent(cleanISBN)}&limit=12`
+        : `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=12`;
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Book search failed");
+      }
+
+      const data = await response.json();
+      searchResults.replaceChildren();
+
+      if (!data.docs || data.docs.length === 0) {
+        searchResults.textContent = "No books found. Try another search.";
+        return;
+      }
+
+      data.docs.forEach(book => {
+        const card = document.createElement("div");
+        card.className = "book-card";
+
+        const cover = document.createElement("img");
+        cover.alt = `Cover of ${book.title || "book"}`;
+        cover.loading = "lazy";
+        cover.src = book.cover_i
+          ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+          : "https://placehold.co/150x220/243b32/f3ead8?text=No+Cover";
+
+        const title = document.createElement("h3");
+        title.textContent = book.title || "Untitled";
+
+        const author = document.createElement("p");
+        author.textContent = book.author_name?.join(", ") || "Unknown author";
+
+        const year = document.createElement("p");
+        year.textContent = book.first_publish_year || "Year unknown";
+
+        card.append(cover, title, author, year);
+        searchResults.appendChild(card);
+      });
+    } catch (error) {
+      searchResults.textContent =
+        "Something went wrong. Please try again.";
+      console.error(error);
+    } finally {
+      searchButton.disabled = false;
+    }
+  }
+
+  searchButton.addEventListener("click", searchBooks);
+
+  searchInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") searchBooks();
+  });
+</script>
 
 </body>
 </html>
