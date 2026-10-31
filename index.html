@@ -5,9 +5,91 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Cozy Library | Book Search</title>
+  
+<style>
+  :root {
+    --forest: #243b32;
+    --forest-dark: #172820;
+    --parchment: #f3ead8;
+    --gold: #c5a46d;
+    --muted: #b7b9a9;
+  }
+
+  body {
+    background-color: var(--forest-dark);
+    color: var(--parchment);
+    font-family: Georgia, serif;
+    margin: 0;
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  h1 {
+    color: var(--gold);
+    font-size: 36px;
+    letter-spacing: 1px;
+  }
+
+  p {
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 32px auto;
+  max-width: 650px;
+  flex-wrap: wrap;
+}
+
+#bookSearch {
+  flex: 1;
+  min-width: 220px;
+  padding: 15px;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  background: var(--parchment);
+  color: var(--forest-dark);
+  font-family: Georgia, serif;
+  font-size: 16px;
+}
+
+#searchButton {
+  padding: 15px 24px;
+  background: var(--gold);
+  color: var(--forest-dark);
+  border: none;
+  border-radius: 8px;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#searchButton:hover {
+  background: #dfc18b;
+}
+
+</style>
+
 </head>
 <body>
-  <h1>📚 The Cozy Library</h1>
+  <h1>The Cozy Library</h1>
   <p>Find your next great read.</p>
+  
+<div class="search-container">
+  <input
+    type="text"
+    id="bookSearch"
+    placeholder="Search by title, author, or ISBN..."
+    aria-label="Search for a book"
+  >
+  <button type="button" id="searchButton">
+    Search Books
+  </button>
+</div>
+
 </body>
 </html>
