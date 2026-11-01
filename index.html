@@ -423,10 +423,17 @@ if (!importPassword) return;
     })
   }
 );
-  if (!response.ok) {
+ 
+if (response.status === 409) {
+  alert("📚 This edition is already in your library!");
+  return;
+}
+
+if (!response.ok) {
   alert("Something went wrong with the import. Please try again.");
   return;
 }
+
 
 alert("Your book import request was sent!");
 
