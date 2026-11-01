@@ -435,10 +435,13 @@ if (response.status === 401) {
   return;
 }
 
+
 if (response.status === 409) {
-  alert("This edition is already in your library!");
+  sessionStorage.setItem("cozyLibraryImportPassword", importPassword);
+  alert("📚 This edition is already in your library!");
   return;
 }
+
 
 if (!response.ok) {
   alert("Something went wrong with the import. Please try again.");
