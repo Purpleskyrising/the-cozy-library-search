@@ -405,7 +405,12 @@ preview.scrollIntoView({ behavior: "smooth", block: "start" });
 addToLibraryButton.addEventListener("click", async () => {
   if (!selectedBook) return;
 
-  const importPassword = prompt("Enter your Cozy Library import password:");
+let importPassword = sessionStorage.getItem("cozyLibraryImportPassword");
+
+if (!importPassword) {
+  importPassword = prompt("Enter your Cozy Library import password:");
+  if (!importPassword) return;
+}
 
 if (!importPassword) return;
   try{
@@ -424,6 +429,12 @@ if (!importPassword) return;
   }
 );
  
+if (response.status === 401) {
+  sessionStorage.removeItem("cozyLibraryImportPassword");
+  alert("Your import password was incorrect. Please try again.");
+  return;
+}
+
 if (response.status === 409) {
   alert("This edition is already in your library!");
   return;
@@ -434,7 +445,7 @@ if (!response.ok) {
   return;
 }
 
-
+sessionStorage.setItem("cozyLibraryImportPassword", importPassword);
 alert("Your book import request was sent!");
 
 } catch (error) {
