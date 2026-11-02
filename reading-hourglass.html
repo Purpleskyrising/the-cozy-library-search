@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Reading Hourglass | The Cozy Library</title>
+</head>
+
+<body>
+  <h1>⏳ The Reading Hourglass</h1>
+
+  <p>
+    Every moment spent between the pages
+    is a moment well spent.
+  </p>
+
+  <div class="hourglass-card">
+    <div class="hourglass-icon">⌛</div>
+
+    <div id="timer">00:00:00</div>
+
+    <p id="timer-status">
+      Your next reading adventure awaits.
+    </p>
+
+    <button id="start-button">Start Reading</button>
+    <button id="pause-button" hidden>Pause</button>
+    <button id="finish-button" hidden>Finish & Save</button>
+  </div>
+  
+<script>
+  const timerDisplay = document.getElementById("timer");
+  const timerStatus = document.getElementById("timer-status");
+
+  const startButton = document.getElementById("start-button");
+  const pauseButton = document.getElementById("pause-button");
+  const finishButton = document.getElementById("finish-button");
+
+  let startTime = 0;
+  let elapsedTime = 0;
+  let timerInterval = null;
+
+  function updateDisplay() {
+    const totalSeconds = Math.floor(elapsedTime / 1000);
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    timerDisplay.textContent =
+      String(hours).padStart(2, "0") + ":" +
+      String(minutes).padStart(2, "0") + ":" +
+      String(seconds).padStart(2, "0");
+  }
+
+  function startTimer() {
+    startTime = Date.now() - elapsedTime;
+
+    timerInterval = setInterval(() => {
+      elapsedTime = Date.now() - startTime;
+      updateDisplay();
+    }, 250);
+
+    startButton.hidden = true;
+    pauseButton.hidden = false;
+    finishButton.hidden = false;
+
+    timerStatus.textContent = "Your reading journey is underway...";
+  }
+
+  startButton.addEventListener("click", startTimer);
+  
+function pauseTimer() {
+  elapsedTime = Date.now() - startTime;
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  pauseButton.textContent = "Resume Reading";
+  timerStatus.textContent = "Your story is waiting for you...";
+
+  pauseButton.removeEventListener("click", pauseTimer);
+  pauseButton.addEventListener("click", resumeTimer);
+}
+
+function resumeTimer() {
+  pauseButton.textContent = "Pause";
+  pauseButton.removeEventListener("click", resumeTimer);
+  pauseButton.addEventListener("click", pauseTimer);
+
+  startTimer();
+}
+
+pauseButton.addEventListener("click", pauseTimer);
+
+function finishTimer() {
+  if (timerInterval !== null) {
+    elapsedTime = Date.now() - startTime;
+  }
+
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  updateDisplay();
+
+  startButton.hidden = false;
+  startButton.textContent = "Start New Session";
+
+  pauseButton.hidden = true;
+  finishButton.hidden = true;
+
+  timerStatus.textContent =
+    "✨ Reading session complete! Your time: " +
+    timerDisplay.textContent;
+
+  elapsedTime = 0;
+}
+
+finishButton.addEventListener("click", finishTimer);
+
+</script>
+
+</body>
+</html>
