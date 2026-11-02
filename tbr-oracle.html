@@ -89,7 +89,7 @@
   display: block;
   width: 110px;
   max-width: 100%;
-  margin: 0 auto 20px;
+  margin: 0 auto 8px;
   border: 3px solid #b99559;
   border-radius: 5px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
@@ -265,6 +265,11 @@
   }
 }
 
+#oracle-heading[hidden],
+#oracle-message[hidden] {
+  display: none;
+}
+
   </style>
 </head>
 
@@ -276,7 +281,9 @@
 <div class="oracle-card">
   <div class="oracle-symbol">✧ 📖 ✧</div>
 
-  <h2>Your Next Adventure Awaits</h2>
+  
+<h2 id="oracle-heading">Your Next Adventure Awaits</h2>
+
 
   <p id="oracle-message">
     The shelves are whispering...
@@ -427,8 +434,10 @@ setTimeout(() => {
 }, 800);
 
 
-    document.getElementById("oracle-message").textContent =
-      "The stars have aligned. Your next adventure has been chosen.";
+
+document.getElementById("oracle-heading").hidden = true;
+document.getElementById("oracle-message").hidden = true;
+
 
 
 chooseButton.hidden = true;
