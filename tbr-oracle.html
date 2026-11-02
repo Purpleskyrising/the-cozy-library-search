@@ -148,6 +148,10 @@
   display: none;
 }
 
+#book-cover[hidden] {
+  display: none;
+}
+
   </style>
 </head>
 
@@ -192,13 +196,69 @@
   const chooseButton = document.getElementById("choose-button");
   const againButton = document.getElementById("again-button");
   const bookReveal = document.getElementById("book-reveal");
+  
+const ORACLE_API =
+  "https://the-cozy-library-api.lindsey-cooley87.workers.dev/tbr";
 
-  function revealBook() {
-    document.getElementById("book-title").textContent = "The Hobbit";
-    document.getElementById("book-author").textContent = "J.R.R. Tolkien";
+function getOraclePassword() {
+  let password = sessionStorage.getItem("cozyOraclePassword");
 
-    const cover = document.getElementById("book-cover");
-    cover.src = "https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg";
+  if (!password) {
+    password = prompt("🔮 Enter your Cozy Library password:");
+
+    if (!password) return null;
+
+    sessionStorage.setItem("cozyOraclePassword", password);
+  }
+
+  return password;
+}
+
+async function fetchOracleBook() {
+  const password = getOraclePassword();
+  if (!password) return null;
+
+  const response = await fetch(ORACLE_API, {
+    method: "POST",
+    headers: {
+      "X-Import-Password": password
+    }
+  });
+
+  if (response.status === 401) {
+    sessionStorage.removeItem("cozyOraclePassword");
+    throw new Error("Incorrect password. Please try again.");
+  }
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "The Oracle could not find a book.");
+  }
+
+  return data.book;
+}
+
+
+  async function revealBook() {
+    
+let book;
+
+try {
+  book = await fetchOracleBook();
+  if (!book) return;
+} catch (error) {
+  document.getElementById("oracle-message").textContent =
+    error.message;
+  return;
+}
+
+document.getElementById("book-title").textContent = book.title;
+document.getElementById("book-author").textContent = book.author;
+
+const cover = document.getElementById("book-cover");
+cover.src = book.cover || "";
+cover.hidden = !book.cover;
 
     bookReveal.hidden = true;
 
